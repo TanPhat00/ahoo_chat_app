@@ -53,10 +53,11 @@ router.post('/register', async (req, res) => {
 });
 
 // Đăng nhập
+const crypto = require('crypto');
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -68,14 +69,19 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Sai mật khẩu' });
     }
 
-    const token = jwt.sign({ id: user.userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    // 👉 Tạo token ngắn kiểu: "2919|randomstring"
+    const shortToken = `${Date.now().toString().slice(-4)}|${crypto.randomBytes(24).toString('hex')}`;
+
+    // Lưu vào DB để sau này xác thực nếu muốn
+    user.loginToken = shortToken;
+    await user.save();
 
     res.status(200).json({
       success: true,
       message: 'Đăng nhập thành công',
-      token,
+      token: shortToken,
       user: {
-        id: user.userId,
+        id: user.userId,  // Hiển thị id
         username: user.username,
         email: user.email,
         avatar: user.avatar || null,
@@ -87,7 +93,7 @@ router.post('/login', async (req, res) => {
     });
 
     console.log('[LOGIN SUCCESS]', {
-      id: user._id,
+      id: user.userId,
       username: user.username,
       email: user.email
     });
@@ -101,5 +107,4 @@ router.post('/login', async (req, res) => {
     });
   }
 });
-
 module.exports = router;
