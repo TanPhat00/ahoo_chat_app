@@ -10,9 +10,11 @@ router.post('/register', async (req, res) => {
   try {
     const { firstName, lastName, username, email, phone, password } = req.body;
 
-    // Kiểm tra bắt buộc
     if (!firstName || !lastName || !username || !email || !password || !phone) {
-      return res.status(400).json({ error: 'Vui lòng điền đầy đủ thông tin' });
+      return res.status(400).json({
+        success: false,
+        error: 'Vui lòng điền đầy đủ thông tin'
+      });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -25,12 +27,27 @@ router.post('/register', async (req, res) => {
       phone,
       password: hash
     });
-
     await user.save();
-
-    res.status(201).json({ message: 'Tạo tài khoản thành công' });
+    console.log('[REGISTER SUCCESS]', user);
+    res.status(200).json({
+      success: true,
+      message: 'Tạo tài khoản thành công',
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+        phone: user.phone
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Lỗi máy chủ', detail: err.message });
+    console.error('[REGISTER ERROR]', err);
+    res.status(500).json({
+      success: false,
+      error: 'Lỗi máy chủ',
+      detail: err.message
+    });
   }
 });
 
