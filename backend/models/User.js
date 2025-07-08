@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose); // <-- THÊM
 
 const userSchema = new mongoose.Schema({
   firstName: { type: String },
@@ -18,6 +19,9 @@ const userSchema = new mongoose.Schema({
     appleId: String,
   },
   createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
+
+// ✅ Tự động tạo userId tăng dần (1, 2, 3, ...)
+userSchema.plugin(AutoIncrement, { inc_field: 'userId' });
 
 module.exports = mongoose.model('User', userSchema);

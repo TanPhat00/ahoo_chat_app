@@ -28,12 +28,13 @@ router.post('/register', async (req, res) => {
       password: hash
     });
     await user.save();
+    
     console.log('[REGISTER SUCCESS]', user);
     res.status(200).json({
       success: true,
       message: 'Tạo tài khoản thành công',
       user: {
-        id: user._id,
+        id: user.userId,
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
@@ -55,25 +56,49 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const user = await User.findOne({ email });
 
-    if (!user) return res.status(401).json({ error: 'Email không tồn tại' });
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Email không tồn tại' });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ error: 'Sai mật khẩu' });
+    if (!isMatch) {
+      return res.status(401).json({ success: false, error: 'Sai mật khẩu' });
+    }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    const { _id, username, email: userEmail, avatar, status } = user;
+    const token = jwt.sign({ id: user.userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.status(200).json({
+      success: true,
+      message: 'Đăng nhập thành công',
       token,
-      user: { _id, username, email: userEmail, avatar, status }
+      user: {
+        id: user.userId,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar || null,
+        status: user.status || 'offline',
+        isVerified: user.isVerified,
+        lastSeen: user.lastSeen,
+        social: user.social
+      }
     });
+
+    console.log('[LOGIN SUCCESS]', {
+      id: user._id,
+      username: user.username,
+      email: user.email
+    });
+
   } catch (err) {
-    res.status(500).json({ error: 'Đăng nhập thất bại', detail: err.message });
+    console.error('[LOGIN ERROR]', err);
+    res.status(500).json({
+      success: false,
+      error: 'Đăng nhập thất bại',
+      detail: err.message
+    });
   }
 });
 
