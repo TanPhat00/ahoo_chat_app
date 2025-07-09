@@ -42,6 +42,7 @@ router.post(
       console.log('[BODY]', req.body); // 👈 lấy thêm thông tin nếu có
 
       const user = await User.findById(req.user._id);
+      console.log('[DEBUG] req.user:', req.user);
       if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
 
       // Upload stream lên Cloudinary
