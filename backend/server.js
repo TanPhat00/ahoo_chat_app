@@ -29,6 +29,7 @@ const server = http.createServer(app);
 // 🛡 Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 📁 API Routes
 app.use('/api/auth', authRoutes);

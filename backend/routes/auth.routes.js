@@ -40,6 +40,7 @@ router.post('/register', async (req, res) => {
         username: user.username,
         email: user.email,
         phone: user.phone
+        
       }
     });
   } catch (err) {
