@@ -29,6 +29,10 @@ function multerErrorHandler(err, req, res, next) {
 }
 router.post(
   '/avatar',
+  (req, res, next) => {
+    console.log('[DEBUG] Bắt đầu nhận file...');
+    next();
+  },
   auth,
   upload.single('avatar'), // ⬅️ đảm bảo tên field đúng
   multerErrorHandler,       // ⬅️ gắn middleware sau Multer
