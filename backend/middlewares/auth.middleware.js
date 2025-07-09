@@ -16,7 +16,6 @@ module.exports = async function (req, res, next) {
     }
 
     req.user = {
-      id: user.userId,
       _id: user._id,
       username: user.username,
       email: user.email,

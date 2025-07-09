@@ -106,14 +106,13 @@ router.put('/status', auth, async (req, res) => {
     res.status(500).json({ success: false, error: 'Lỗi cập nhật trạng thái', detail: err.message });
   }
 });
-// logout
+// lo
 router.post('/logout', auth, async (req, res) => {
   try {
-    await User.findOneAndUpdate(
-      { userId: req.user.id },
-      { status: 'offline', lastSeen: new Date() }
-    );
-    
+    await User.findByIdAndUpdate(req.user.id, {
+      status: 'offline',
+      lastSeen: new Date(),
+    });
     res.json({ message: 'Đăng xuất thành công' });
   } catch (err) {
     res.status(500).json({ error: 'Lỗi đăng xuất', detail: err.message });
