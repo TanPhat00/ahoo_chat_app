@@ -11,6 +11,8 @@ const DEFAULT_AVATAR = 'https://w7.pngwing.com/pngs/177/551/png-transparent-user
 
 // 📌 Cập nhật avatar user
 router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
+  console.log('[DEBUG] req.file:', req.file); // Thêm dòng này
+
   try {
     if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
 
