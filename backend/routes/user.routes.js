@@ -18,17 +18,24 @@ router.get('/me', auth, async (req, res) => {
 // 📌 Cập nhật hồ sơ người dùng
 router.put('/profile', auth, async (req, res) => {
   try {
-    const updateFields = {};
     const allowedFields = ['firstName', 'lastName', 'username', 'email', 'phone', 'status'];
 
+    // Lấy user hiện tại
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
+
+    const updateFields = {};
+
+    // Chỉ cập nhật những field có sự thay đổi
     allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        updateFields[field] = req.body[field];
+      const newValue = req.body[field];
+      if (newValue !== undefined && newValue !== user[field]) {
+        updateFields[field] = newValue;
       }
     });
 
     if (Object.keys(updateFields).length === 0) {
-      return res.status(400).json({ success: false, error: 'Không có thông tin nào để cập nhật' });
+      return res.status(400).json({ success: false, error: 'Không có thông tin nào thay đổi để cập nhật' });
     }
 
     // Kiểm tra định dạng email
