@@ -11,18 +11,12 @@ const DEFAULT_AVATAR = 'https://w7.pngwing.com/pngs/177/551/png-transparent-user
 
 // 📌 Cập nhật avatar user
 router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
-  console.log('[DEBUG] req.file:', req.file); // Thêm dòng này
-  console.log('[DEBUG] File:', req.file); 
-
   try {
+    console.log('[DEBUG] req.file:', req.file); // log để test multer
     if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
 
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
-
-    // Nếu avatar hiện tại đã tồn tại và giống ảnh mới (dựa theo checksum/url so sánh tuỳ logic)
-    // => Bỏ qua bước này vì Cloudinary không trả hash trùng nhau từ buffer.
-    // Bạn có thể kiểm tra kích thước/tên nếu muốn, ở đây ta upload mỗi lần đều tạo ảnh mới
 
     const streamUpload = (req) => {
       return new Promise((resolve, reject) => {
@@ -39,21 +33,23 @@ router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
 
     const result = await streamUpload(req);
 
-    // Optional: Nếu có avatar cũ khác mặc định thì có thể xoá khỏi cloudinary
+    // Xoá avatar cũ nếu không phải mặc định
     if (user.avatar && user.avatar !== DEFAULT_AVATAR) {
       const segments = user.avatar.split('/');
-      const publicId = segments[segments.length - 1].split('.')[0]; // Extract public ID
+      const publicId = segments[segments.length - 1].split('.')[0];
       await cloudinary.uploader.destroy(`avatars/${publicId}`);
     }
 
     user.avatar = result.secure_url;
     await user.save();
 
-    res.json({ success: true, message: 'Avatar đã được cập nhật', avatar: user.avatar });
+    res.json({ success: true, message: 'Cập nhật avatar thành công', avatar: user.avatar });
   } catch (err) {
+    console.error('[UPLOAD ERROR]', err);
     res.status(500).json({ success: false, error: 'Lỗi máy chủ', detail: err.message });
   }
 });
+
 
 // 📌 Xoá avatar (trở về mặc định)
 router.delete('/avatar', auth, async (req, res) => {
