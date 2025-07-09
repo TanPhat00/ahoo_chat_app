@@ -1,16 +1,23 @@
-const jwt = require('jsonwebtoken');
+// middleware/authToken.js
+const User = require('../models/User');
 
-module.exports = function (req, res, next) {
+module.exports = async function (req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer 1234|abcdef...
 
-  if (!token) return res.status(401).json({ error: 'Token không tồn tại' });
+  if (!token) return res.status(401).json({ error: 'Thiếu token' });
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // gắn thông tin user vào req
+    const user = await User.findOne({ loginToken: token });
+    if (!user) return res.status(403).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
+
+    req.user = {
+      id: user.userId,
+      username: user.username,
+      email: user.email,
+    };
     next();
   } catch (err) {
-    res.status(403).json({ error: 'Token không hợp lệ hoặc hết hạn' });
+    res.status(500).json({ error: 'Lỗi xác thực', detail: err.message });
   }
 };
