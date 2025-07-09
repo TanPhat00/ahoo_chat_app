@@ -21,6 +21,7 @@
     "mongoose": "^8.16.1",
     "mongoose-sequence": "^6.0.1",
     "multer": "^2.0.1",
+    "nanoid": "^5.1.5",
     "socket.io": "^4.8.1",
     "streamifier": "^0.1.1"
   },
