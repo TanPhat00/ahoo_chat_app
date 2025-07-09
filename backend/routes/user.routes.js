@@ -72,7 +72,8 @@ router.put('/change-password', auth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
     }
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findOne({ userId: req.user.id });
+
     if (!user) return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
@@ -98,18 +99,21 @@ router.put('/status', auth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Trạng thái không hợp lệ' });
     }
 
-    await User.findByIdAndUpdate(req.user.id, { status });
+    await User.findOneAndUpdate({ userId: req.user.id }, { status });
+
     res.json({ success: true, message: 'Đã cập nhật trạng thái' });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Lỗi cập nhật trạng thái', detail: err.message });
   }
 });
+// logout
 router.post('/logout', auth, async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.user.id, {
-      status: 'offline',
-      lastSeen: new Date(),
-    });
+    await User.findOneAndUpdate(
+      { userId: req.user.id },
+      { status: 'offline', lastSeen: new Date() }
+    );
+    
     res.json({ message: 'Đăng xuất thành công' });
   } catch (err) {
     res.status(500).json({ error: 'Lỗi đăng xuất', detail: err.message });
