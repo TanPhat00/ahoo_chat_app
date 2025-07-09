@@ -33,6 +33,7 @@ router.post(
   upload.single('avatar'), // ⬅️ đảm bảo tên field đúng
   multerErrorHandler,       // ⬅️ gắn middleware sau Multer
   async (req, res) => {
+    console.log('[DEBUG] req.file:', req.file); 
     try {
       console.log('[DEBUG] req.file:', req.file);
       if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
