@@ -17,9 +17,14 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    // ✅ Tạo userId tự động (số duy nhất tăng dần)
+    const lastUser = await User.findOne().sort({ userId: -1 }); // Tìm user có userId lớn nhất
+    const newUserId = lastUser ? lastUser.userId + 1 : 1;
+
     const hash = await bcrypt.hash(password, 10);
 
     const user = new User({
+      userId: newUserId, // 🧠 Gán userId mới
       firstName,
       lastName,
       username,
@@ -27,8 +32,9 @@ router.post('/register', async (req, res) => {
       phone,
       password: hash
     });
+
     await user.save();
-    
+
     console.log('[REGISTER SUCCESS]', user);
     res.status(200).json({
       success: true,
@@ -40,7 +46,6 @@ router.post('/register', async (req, res) => {
         username: user.username,
         email: user.email,
         phone: user.phone
-        
       }
     });
   } catch (err) {
@@ -52,6 +57,7 @@ router.post('/register', async (req, res) => {
     });
   }
 });
+
 
 // Đăng nhập
 const crypto = require('crypto');
