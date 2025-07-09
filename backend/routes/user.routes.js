@@ -5,7 +5,7 @@ const auth = require('../middlewares/auth.middleware');
 const User = require('../models/User');
 const multer = require('multer');
 const upload = multer();
-
+app.use(express.urlencoded({ extended: true }));
 // 📌 Lấy thông tin người dùng hiện tại
 router.get('/me', auth, async (req, res) => {
   try {
@@ -88,7 +88,7 @@ router.put('/profile', auth, async (req, res) => {
 });
 
 // 📌 Đổi mật khẩu
-router.put('/change-password', auth, upload.none(),async (req, res) => {
+router.put('/change-password', auth, async (req, res) => {
   console.log('[DEBUG] req.body:', req.body);
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
