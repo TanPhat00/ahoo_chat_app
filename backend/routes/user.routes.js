@@ -11,11 +11,29 @@ router.get('/me', auth, async (req, res) => {
     if (!user)
       return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
 
-    res.json({ success: true, user });
+    // ✅ Đảm bảo avatar luôn có trong response (string hoặc null)
+    const userData = {
+      _id: user._id,
+      userId: user.userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      avatar: user.avatar || null,     
+      status: user.status,
+      isVerified: user.isVerified,
+      lastSeen: user.lastSeen,
+      social: user.social,
+      createdAt: user.createdAt
+    };
+
+    res.json({ success: true, user: userData });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Lỗi máy chủ', detail: err.message });
   }
 });
+
 
 
 // 📌 Cập nhật hồ sơ người dùng
