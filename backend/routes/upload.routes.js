@@ -10,6 +10,23 @@ const streamifier = require('streamifier');
 const DEFAULT_AVATAR = 'https://w7.pngwing.com/pngs/177/551/png-transparent-user-interface-design-computer-icons-default-stephen-salazar-graphy-user-interface-design-computer-wallpaper-sphere-thumbnail.png'; // cập nhật link thực tế của bạn
 
 // 📌 Cập nhật avatar user
+const multer = require('multer'); // Đảm bảo multer được import nếu chưa có
+
+// Middleware xử lý lỗi multer
+function multerErrorHandler(err, req, res, next) {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      error: 'Lỗi Multer',
+      detail: err.message,
+      field: err.field,
+      code: err.code,
+    });
+  } else if (err) {
+    return res.status(500).json({ success: false, error: 'Lỗi máy chủ', detail: err.message });
+  }
+  next();
+}
 router.post(
   '/avatar',
   auth,
