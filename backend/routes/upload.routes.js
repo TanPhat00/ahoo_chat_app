@@ -10,46 +10,50 @@ const streamifier = require('streamifier');
 const DEFAULT_AVATAR = 'https://w7.pngwing.com/pngs/177/551/png-transparent-user-interface-design-computer-icons-default-stephen-salazar-graphy-user-interface-design-computer-wallpaper-sphere-thumbnail.png'; // cập nhật link thực tế của bạn
 
 // 📌 Cập nhật avatar user
-router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
-  try {
-    console.log('[DEBUG] req.file:', req.file); // log để test multer
-    if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
+router.post(
+  '/avatar',
+  auth,
+  upload.single('avatar'), // ⬅️ đảm bảo tên field đúng
+  multerErrorHandler,       // ⬅️ gắn middleware sau Multer
+  async (req, res) => {
+    try {
+      console.log('[DEBUG] req.file:', req.file);
+      if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
 
-    const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
+      const user = await User.findById(req.user._id);
+      if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
 
-    const streamUpload = (req) => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: 'avatars' },
-          (error, result) => {
-            if (result) resolve(result);
-            else reject(error);
-          }
-        );
-        streamifier.createReadStream(req.file.buffer).pipe(stream);
-      });
-    };
+      const streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'avatars' },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
 
-    const result = await streamUpload(req);
+      const result = await streamUpload(req);
 
-    // Xoá avatar cũ nếu không phải mặc định
-    if (user.avatar && user.avatar !== DEFAULT_AVATAR) {
-      const segments = user.avatar.split('/');
-      const publicId = segments[segments.length - 1].split('.')[0];
-      await cloudinary.uploader.destroy(`avatars/${publicId}`);
+      if (user.avatar && user.avatar !== DEFAULT_AVATAR) {
+        const segments = user.avatar.split('/');
+        const publicId = segments[segments.length - 1].split('.')[0];
+        await cloudinary.uploader.destroy(`avatars/${publicId}`);
+      }
+
+      user.avatar = result.secure_url;
+      await user.save();
+
+      res.json({ success: true, message: 'Cập nhật avatar thành công', avatar: user.avatar });
+    } catch (err) {
+      console.error('[UPLOAD ERROR]', err);
+      res.status(500).json({ success: false, error: 'Lỗi máy chủ', detail: err.message });
     }
-
-    user.avatar = result.secure_url;
-    await user.save();
-
-    res.json({ success: true, message: 'Cập nhật avatar thành công', avatar: user.avatar });
-  } catch (err) {
-    console.error('[UPLOAD ERROR]', err);
-    res.status(500).json({ success: false, error: 'Lỗi máy chủ', detail: err.message });
   }
-});
-
+);
 
 // 📌 Xoá avatar (trở về mặc định)
 router.delete('/avatar', auth, async (req, res) => {
