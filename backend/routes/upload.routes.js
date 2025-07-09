@@ -6,6 +6,7 @@ const auth = require('../middlewares/auth.middleware');
 const User = require('../models/User');
 const streamifier = require('streamifier');
 const multer = require('multer');
+
 // 🔧 Cấu hình avatar mặc định
 const DEFAULT_AVATAR = 'https://w7.pngwing.com/pngs/177/551/png-transparent-user-interface-design-computer-icons-default-stephen-salazar-graphy-user-interface-design-computer-wallpaper-sphere-thumbnail.png'; // cập nhật link thực tế của bạn
 
