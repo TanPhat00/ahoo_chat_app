@@ -11,6 +11,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // Tối đa 10MB
   fileFilter: (req, file, cb) => {
     console.log('[DEBUG] Nhận file:', file.originalname, file.mimetype);
+    upload.single('avatar')
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
