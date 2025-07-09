@@ -32,7 +32,7 @@ const server = http.createServer(app);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(upload.none());
+
 
 // 📁 API Routes
 app.use('/api/auth', authRoutes);
