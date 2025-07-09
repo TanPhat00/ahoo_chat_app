@@ -14,7 +14,7 @@ router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
 
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
 
     // Nếu avatar hiện tại đã tồn tại và giống ảnh mới (dựa theo checksum/url so sánh tuỳ logic)
