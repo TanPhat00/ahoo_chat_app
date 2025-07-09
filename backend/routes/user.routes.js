@@ -14,7 +14,6 @@ router.get('/me', auth, async (req, res) => {
     // ✅ Đảm bảo avatar luôn có trong response (string hoặc null)
     const userData = {
       _id: user._id,
-      userId: user.userId,
       firstName: user.firstName,
       lastName: user.lastName,
       username: user.username,
