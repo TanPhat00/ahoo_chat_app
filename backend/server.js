@@ -4,6 +4,8 @@ const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { Server } = require('socket.io');
+const multer = require('multer');
+const upload = multer();
 
 // 🔧 Config
 const corsOptions = require('./config/corsOptions');
