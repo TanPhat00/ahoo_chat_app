@@ -15,8 +15,8 @@ module.exports = async function (req, res, next) {
     }
 
     req.user = {
-      // id: user._id, // ✅ quan trọng
-      _id: user._id,
+      id: user._id, // ✅ quan trọng
+      // _id: user._id,
       username: user.username,
       email: user.email,
     };
