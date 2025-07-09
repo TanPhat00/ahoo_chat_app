@@ -1,3 +1,4 @@
+// middleware/authToken.js
 const User = require('../models/User');
 
 module.exports = async function (req, res, next) {
@@ -11,7 +12,7 @@ module.exports = async function (req, res, next) {
     if (!user) return res.status(403).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
 
     req.user = {
-      id: user.userId, // hoặc user._id nếu không có userId
+      id: user.userId,
       username: user.username,
       email: user.email,
     };
