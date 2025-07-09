@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const router = express.Router();
 const auth = require('../middlewares/auth.middleware');
 const User = require('../models/User');
+const multer = require('multer');
+const upload = multer();
 
 // 📌 Lấy thông tin người dùng hiện tại
 router.get('/me', auth, async (req, res) => {
@@ -86,7 +88,7 @@ router.put('/profile', auth, async (req, res) => {
 });
 
 // 📌 Đổi mật khẩu
-router.put('/change-password', auth, async (req, res) => {
+router.put('/change-password', auth, upload.none(),async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
 
