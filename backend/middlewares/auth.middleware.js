@@ -1,4 +1,3 @@
-// middleware/authToken.js
 const User = require('../models/User');
 
 module.exports = async function (req, res, next) {
@@ -15,8 +14,9 @@ module.exports = async function (req, res, next) {
       return res.status(403).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
     }
 
+    // ✅ Gán đúng định danh _id MongoDB để các route sử dụng
     req.user = {
-      _id: user._id,
+      id: user._id, // phải là `id`, không phải `_id`
       username: user.username,
       email: user.email,
     };
