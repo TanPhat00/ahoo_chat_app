@@ -7,8 +7,7 @@ const User = require('../models/User');
 // 📌 Lấy thông tin người dùng hiện tại
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findOne({ userId: req.user.id }).select('-password');
-
+    const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
     res.json({ success: true, user });
   } catch (err) {
@@ -48,12 +47,11 @@ router.put('/profile', auth, async (req, res) => {
       if (exists) return res.status(400).json({ success: false, error: 'Username đã được sử dụng' });
     }
 
-    const updatedUser = await User.findOneAndUpdate(
-      { userId: req.user.id },
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
       { $set: updateFields },
       { new: true }
     ).select('-password');
-    
 
     res.json({ success: true, message: 'Hồ sơ đã được cập nhật', user: updatedUser });
   } catch (err) {
@@ -72,8 +70,7 @@ router.put('/change-password', auth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
     }
 
-    const user = await User.findOne({ userId: req.user.id });
-
+    const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
@@ -99,14 +96,12 @@ router.put('/status', auth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Trạng thái không hợp lệ' });
     }
 
-    await User.findOneAndUpdate({ userId: req.user.id }, { status });
-
+    await User.findByIdAndUpdate(req.user.id, { status });
     res.json({ success: true, message: 'Đã cập nhật trạng thái' });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Lỗi cập nhật trạng thái', detail: err.message });
   }
 });
-// lo
 router.post('/logout', auth, async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.user.id, {
