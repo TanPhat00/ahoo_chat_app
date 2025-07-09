@@ -35,7 +35,6 @@ router.post('/register', async (req, res) => {
       message: 'Tạo tài khoản thành công',
       user: {
         id: user._id,               // ObjectId của MongoDB
-        userId: user.userId,        // ID dạng số (auto-increment)
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
