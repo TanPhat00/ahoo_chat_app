@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
 
     const user = new User({
-      userId: newUserId, // 🧠 Gán userId mới
+      id, // 🧠 Gán userId mới
       firstName,
       lastName,
       username,
@@ -40,7 +40,7 @@ router.post('/register', async (req, res) => {
       success: true,
       message: 'Tạo tài khoản thành công',
       user: {
-        id: user.userId,
+        id: user.,
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
