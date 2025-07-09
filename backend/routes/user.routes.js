@@ -44,7 +44,7 @@ router.put('/profile', auth, async (req, res) => {
     }
 
     // Check trùng email hoặc username
-    if (updateFields.email) {
+    if (updateFields.email && updateFields.email !== user.email) {
       const exists = await User.findOne({ email: updateFields.email, _id: { $ne: req.user.id } });
       if (exists) return res.status(400).json({ success: false, error: 'Email đã được sử dụng' });
     }
