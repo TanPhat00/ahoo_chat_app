@@ -35,6 +35,10 @@ router.post(
   },
   auth,
   upload.single('avatar'), // ⬅️ đảm bảo tên field đúng
+  (req, res, next) => {
+    console.log('[DEBUG] Sau multer:', req.file);
+    next();
+  },
   multerErrorHandler,       // ⬅️ gắn middleware sau Multer
   async (req, res) => {
     console.log('[DEBUG] req.file:', req.file); 
