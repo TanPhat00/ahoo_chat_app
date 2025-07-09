@@ -142,7 +142,6 @@ router.put('/change-password', auth, async (req, res) => {
 });
 
 
-
 // 📌 Cập nhật trạng thái online/busy/away/offline
 router.put('/status', auth, async (req, res) => {
   try {
