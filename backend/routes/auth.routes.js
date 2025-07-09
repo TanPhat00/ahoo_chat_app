@@ -16,21 +16,15 @@ router.post('/register', async (req, res) => {
         error: 'Vui lòng điền đầy đủ thông tin'
       });
     }
-
-    // ✅ Tạo userId tự động (số duy nhất tăng dần)
-    const lastUser = await User.findOne().sort({ userId: -1 }); // Tìm user có userId lớn nhất
-    const newUserId = lastUser ? lastUser.userId + 1 : 1;
-
     const hash = await bcrypt.hash(password, 10);
-
     const user = new User({
-      id, // 🧠 Gán userId mới
       firstName,
       lastName,
       username,
       email,
       phone,
       password: hash
+      // ❌ Không cần truyền userId, để plugin tự tăng
     });
 
     await user.save();
@@ -40,7 +34,8 @@ router.post('/register', async (req, res) => {
       success: true,
       message: 'Tạo tài khoản thành công',
       user: {
-        id: user._id,
+        id: user._id,               // ObjectId của MongoDB
+        userId: user.userId,        // ID dạng số (auto-increment)
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
@@ -88,7 +83,7 @@ router.post('/login', async (req, res) => {
       message: 'Đăng nhập thành công',
       token: shortToken,
       user: {
-        id: user.userId,  // Hiển thị id
+        id: user._id,  // Hiển thị id
         username: user.username,
         email: user.email,
         avatar: user.avatar || null,
@@ -100,7 +95,7 @@ router.post('/login', async (req, res) => {
     });
 
     console.log('[LOGIN SUCCESS]', {
-      id: user.userId,
+      id: user._id,
       username: user.username,
       email: user.email
     });
