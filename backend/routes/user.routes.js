@@ -90,6 +90,7 @@ router.put('/change-password', auth, async (req, res) => {
   try {
     const { oldPassword, newPassword, confirmPassword } = req.body;
 
+    // Kiểm tra các trường cần thiết
     if (!oldPassword || !newPassword || !confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -97,6 +98,7 @@ router.put('/change-password', auth, async (req, res) => {
       });
     }
 
+    // Kiểm tra độ dài mật khẩu mới
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
@@ -104,6 +106,7 @@ router.put('/change-password', auth, async (req, res) => {
       });
     }
 
+    // So khớp mật khẩu mới và xác nhận
     if (newPassword !== confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -111,24 +114,26 @@ router.put('/change-password', auth, async (req, res) => {
       });
     }
 
+    // Lấy user
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ success: false, error: 'Người dùng không tồn tại' });
     }
 
+    // Kiểm tra mật khẩu cũ
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, error: 'Mật khẩu cũ không đúng' });
     }
 
+    // Cập nhật mật khẩu mới
     const hashed = await bcrypt.hash(newPassword, 10);
     user.password = hashed;
 
-    await user.save();
+    // Xóa loginToken nếu muốn logout sau khi đổi
+    // user.loginToken = null;
 
-    // 👉 Log đầy đủ thông tin user (trừ password)
-    const { password, ...userInfo } = user.toObject();
-    console.log('[PASSWORD CHANGED SUCCESSFULLY]', userInfo);
+    await user.save();
 
     res.json({ success: true, message: 'Đổi mật khẩu thành công' });
   } catch (err) {
