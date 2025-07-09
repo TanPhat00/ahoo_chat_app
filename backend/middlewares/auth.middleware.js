@@ -12,7 +12,7 @@ module.exports = async function (req, res, next) {
     if (!user) return res.status(403).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
 
     req.user = {
-      id: user._id,
+      id: user.u,
       username: user.username,
       email: user.email,
     };
