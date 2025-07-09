@@ -14,9 +14,8 @@ module.exports = async function (req, res, next) {
       return res.status(403).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
     }
 
-    // ✅ Gán đúng định danh _id MongoDB để các route sử dụng
     req.user = {
-      id: user._id, // phải là `id`, không phải `_id`
+      id: user._id, // ✅ quan trọng
       username: user.username,
       email: user.email,
     };

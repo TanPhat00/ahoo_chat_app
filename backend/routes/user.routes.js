@@ -17,6 +17,7 @@ router.get('/me', auth, async (req, res) => {
 
 // 📌 Cập nhật hồ sơ người dùng
 router.put('/profile', auth, async (req, res) => {
+  console.log('[DEBUG] req.user:', req.user);
   try {
     const allowedFields = ['firstName', 'lastName', 'username', 'email', 'phone', 'status'];
 
