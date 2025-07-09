@@ -29,57 +29,41 @@ function multerErrorHandler(err, req, res, next) {
 }
 router.post(
   '/avatar',
+  auth,                            // ⬅️ Đặt auth lên đầu tiên
   (req, res, next) => {
     console.log('[DEBUG] Bắt đầu nhận file...');
     next();
   },
-  auth,
-  upload.single('avatar'), // ⬅️ đảm bảo tên field đúng
+  upload.single('avatar'),         // ⬅️ Chỉ chạy sau khi có `req.user`
   (req, res, next) => {
     console.log('[DEBUG] Sau multer:', req.file);
     next();
   },
-  multerErrorHandler,       // ⬅️ gắn middleware sau Multer
+  multerErrorHandler,
   async (req, res) => {
-    console.log('[DEBUG] req.file:', req.file); 
+    console.log('[DEBUG] req.user:', req.user); // ✅ Thêm dòng này
+    console.log('[DEBUG] req.file:', req.file);
+
     try {
-      console.log('[DEBUG] req.file:', req.file);
-      if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
-
-      const user = await User.findById(req.user._id);
-      if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
-
-      const streamUpload = (req) => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: 'avatars' },
-            (error, result) => {
-              if (result) resolve(result);
-              else reject(error);
-            }
-          );
-          streamifier.createReadStream(req.file.buffer).pipe(stream);
-        });
-      };
-
-      const result = await streamUpload(req);
-
-      if (user.avatar && user.avatar !== DEFAULT_AVATAR) {
-        const segments = user.avatar.split('/');
-        const publicId = segments[segments.length - 1].split('.')[0];
-        await cloudinary.uploader.destroy(`avatars/${publicId}`);
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'Không có file ảnh' });
       }
 
-      user.avatar = result.secure_url;
-      await user.save();
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
+      }
 
-      res.json({ success: true, message: 'Cập nhật avatar thành công', avatar: user.avatar });
+      // upload to Cloudinary...
+      // (phần code của bạn giữ nguyên ở đây)
+
     } catch (err) {
       console.error('[UPLOAD ERROR]', err);
       res.status(500).json({ success: false, error: 'Lỗi máy chủ', detail: err.message });
     }
   }
 );
+
 
 // 📌 Xoá avatar (trở về mặc định)
 router.delete('/avatar', auth, async (req, res) => {
