@@ -26,7 +26,7 @@ function multerErrorHandler(err, req, res, next) {
   }
   next();
 }
-
+// put anh user
 router.post(
   '/avatar',
   (req, res, next) => {
