@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   devices: [{ deviceId: String, platform: String, lastLogin: Date }],
   lastSeen: Date,
+  loginToken: { type: String, default: null },
   social: {
     googleId: String,
     facebookId: String,
