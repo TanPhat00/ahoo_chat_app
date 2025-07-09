@@ -30,52 +30,33 @@ function multerErrorHandler(err, req, res, next) {
 // put anh user
 router.post(
   '/avatar',
-  (req, res, next) => {
-    console.log('\n===== [DEBUG] Bắt đầu nhận file =====');
-    console.log('[DEBUG] Headers:', req.headers['content-type']);
-    console.log('[DEBUG] Full headers:', req.headers);
-    next();
-  },
   auth,
-  (req, res, next) => {
-    console.log('[DEBUG] Authenticated user:', req.user); // ⚠️ kiểm tra user có đúng không
-    next();
-  },
-  upload.single('avatar'), // ⚠️ field name phải là "avatar"
-  (req, res, next) => {
-    console.log('[DEBUG] Sau multer - req.file:', req.file);
-    console.log('[DEBUG] req.body:', req.body);
-    next();
-  },
+  upload.single('avatar'), // "avatar" là tên field trong form-data
   multerErrorHandler,
   async (req, res) => {
-    console.log('[DEBUG] Vào trong xử lý chính');
     try {
       if (!req.file) {
         return res.status(400).json({ success: false, error: 'Không có file ảnh' });
       }
 
-      const user = await User.findById(req.user._id);
-      if (!user) {
-        return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
-      }
+      console.log('[BODY]', req.body); // 👈 lấy thêm thông tin nếu có
 
-      const streamUpload = (req) => {
-        return new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            { folder: 'avatars' },
-            (error, result) => {
-              if (result) resolve(result);
-              else reject(error);
-            }
-          );
+      const user = await User.findById(req.user._id);
+      if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
+
+      // Upload stream lên Cloudinary
+      const streamUpload = () =>
+        new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: 'avatars' }, (err, result) => {
+            if (result) resolve(result);
+            else reject(err);
+          });
           streamifier.createReadStream(req.file.buffer).pipe(stream);
         });
-      };
 
-      const result = await streamUpload(req);
+      const result = await streamUpload();
 
-      // Xoá avatar cũ nếu cần
+      // Xóa avatar cũ nếu có
       if (user.avatar && user.avatar !== DEFAULT_AVATAR) {
         const segments = user.avatar.split('/');
         const publicId = segments[segments.length - 1].split('.')[0];
