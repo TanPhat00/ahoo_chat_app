@@ -67,15 +67,12 @@
     return;
   }
 
-  currentRoomId = data.roomId;
-  console.log("✅ Đã lấy được roomId:", currentRoomId);
+  document.getElementById("currentRoomId").value = data.roomId;
+  socket.emit("chat:joinRoom", data.roomId);
 
-  socket.emit("chat:joinRoom", currentRoomId);
-
-  // Sau khi join room thì mới fetch tin nhắn
-  fetch(`http://localhost:3000/api/chat/${currentRoomId}/messages`, {
+  fetch(`http://localhost:3000/api/chat/${data.roomId}/messages`, {
     headers: {
-      Authorization: token
+      Authorization: "Bearer " + token
     }
   })
   .then(res => res.json())
@@ -85,6 +82,7 @@
     });
   });
 });
+
 
     }
 
