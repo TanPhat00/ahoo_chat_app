@@ -24,10 +24,10 @@
   <!-- Danh sách user -->
   <div class="user-list">
     <strong>🔹 Danh sách người dùng:</strong><br>
-    <div class="user" onclick="startChat('687108d7c9f5e73fd7e05e59', '2243|a3b89506d86a9eeee4ff8a3a20cdab28809e89ac1ef273ca', '6871083dcc221a0f4c311d5e')">
+    <div class="user" onclick="startChat('687108d7c9f5e73fd7e05e59', '1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba', '6871083dcc221a0f4c311d5e')">
       👤 User A (t.hnhi) → Chat với B
     </div>
-    <div class="user" onclick="startChat('6871083dcc221a0f4c311d5e', '1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba', '687108d7c9f5e73fd7e05e59')">
+    <div class="user" onclick="startChat('6871083dcc221a0f4c311d5e', '2243|a3b89506d86a9eeee4ff8a3a20cdab28809e89ac1ef273ca', '687108d7c9f5e73fd7e05e59')">
       👤 User B (tanphat) → Chat với A
     </div>
   </div>
@@ -46,9 +46,9 @@
     });
 
     function startChat(currentUserId, token, otherUserId) {
-      document.getElementById("6871083dcc221a0f4c311d5e").value = currentUserId;
+      document.getElementById("687108d7c9f5e73fd7e05e59").value = currentUserId;
       document.getElementById("1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba").value = token;
-      document.getElementById("687108d7c9f5e73fd7e05e59").textContent = otherUserId;
+      document.getElementById("chatWith").textContent = otherUserId;
       document.getElementById("messages").innerHTML = "";
 
       fetch("http://localhost:3000/api/chat/create-or-get-room", {
@@ -61,29 +61,29 @@
       })
       .then(res => res.json())
       .then(data => {
-  if (!data.success || !data.roomId) {
-    console.error("❌ Không lấy được roomId từ server", data);
-    alert("Không thể tạo hoặc lấy phòng chat!");
-    return;
-  }
+        if (!data.success || !data.roomId) {
+          console.error("❌ Không lấy được roomId từ server", data);
+          alert("Không thể tạo hoặc lấy phòng chat!");
+          return;
+        }
 
-  document.getElementById("6871302c09e43ceb465c0805").value = data.roomId; //<---
+        document.getElementById("currentRoomId").value = data.roomId;
+        socket.emit("chat:joinRoom", data.roomId);
 
-  socket.emit("chat:joinRoom", data.roomId);
-
-  fetch(`http://localhost:3000/api/chat/${data.roomId}/messages`, {
-    headers: {
-      Authorization: "Bearer " + token
+        fetch(`http://localhost:3000/api/chat/${data.roomId}/messages`, {
+          headers: {
+            Authorization: "Bearer " + token
+          }
+        })
+        .then(res => res.json())
+        .then(msgData => {
+          msgData.messages.forEach(m => {
+            addMessageToUI(m.sender.username || m.sender._id, m.content);
+          });
+        });
+      });
     }
-  })
-  .then(res => res.json())
-  .then(msgData => {
-    msgData.messages.forEach(m => {
-      addMessageToUI(m.sender.username || m.sender._id, m.content);
-    });
-  });
-});
-    }
+
     function sendMessage() {
       const content = document.getElementById("messageInput").value.trim();
       const senderId = document.getElementById("6871083dcc221a0f4c311d5e").value;
