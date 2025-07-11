@@ -1,18 +1,16 @@
-// config/corsOptions.js
 require('dotenv').config();
 
-const allowedOrigins = process.env.CLIENT_ORIGINS?.split(',') || 
-[
+const allowedOrigins = process.env.CLIENT_ORIGINS?.split(',') || [
   'http://localhost:3000',     // server backend
-  'http://127.0.0.1:5500',     // nếu bạn dùng Live Server của VSCode
-  'http://localhost:5500',     // nếu bạn chạy thủ công
-  'file://'                    // nếu bạn chạy trực tiếp file HTML
+  'http://127.0.0.1:5500',     // Live Server của VSCode
+  'http://localhost:5500',     // thủ công
+  'file://',                   // mở file trực tiếp
+  null                         // ⚠️ thêm null để chấp nhận origin null (một số trình duyệt chạy file HTML cục bộ)
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log("🟡 Origin gửi đến là:", origin); // THÊM DÒNG NÀY
-
+    console.log("🟡 Origin gửi đến là:", origin);
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
