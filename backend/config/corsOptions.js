@@ -10,11 +10,12 @@ const allowedOrigins = process.env.CLIENT_ORIGINS?.split(',') || [
 const corsOptions = {
   origin: function (origin, callback) {
     console.log("🟡 Origin gửi đến là:", origin);
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('❌ Not allowed by CORS'));
     }
+  
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
