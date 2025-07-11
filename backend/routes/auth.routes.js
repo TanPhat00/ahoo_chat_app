@@ -85,6 +85,7 @@ router.post('/login', async (req, res) => {
         id: user._id,  // Hiển thị id
         username: user.username,
         email: user.email,
+        phone: user.phone,
         avatar: user.avatar || null,
         status: user.status || 'offline',
         isVerified: user.isVerified,
