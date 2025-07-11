@@ -17,17 +17,17 @@
   <h2>🔗 Chat 1-1 (Demo kiểu Messenger)</h2>
 
   <!-- Lưu trạng thái -->
-  <input type="hidden" id="currentUserId" value="">
-  <input type="hidden" id="currentToken" value="">
-  <input type="hidden" id="currentRoomId" value="">
+  <input type="hidden" id="687108d7c9f5e73fd7e05e59" value="">
+  <input type="hidden" id="1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba" value="">
+  <input type="hidden" id="6871302c09e43ceb465c0805" value="">
 
   <!-- Danh sách user -->
   <div class="user-list">
     <strong>🔹 Danh sách người dùng:</strong><br>
-    <div class="user" onclick="startChat('687108d7c9f5e73fd7e05e59', '8128|6ece12f3343f335071f9362a9c2186bb2b0958b855977dcb', '6871083dcc221a0f4c311d5e')">
+    <div class="user" onclick="startChat('687108d7c9f5e73fd7e05e59', '2243|a3b89506d86a9eeee4ff8a3a20cdab28809e89ac1ef273ca', '6871083dcc221a0f4c311d5e')">
       👤 User A (t.hnhi) → Chat với B
     </div>
-    <div class="user" onclick="startChat('6871083dcc221a0f4c311d5e', '2783|1aa8921c3bdd537bd1f5657a07f084247df3a727a3fca6d8', '687108d7c9f5e73fd7e05e59')">
+    <div class="user" onclick="startChat('6871083dcc221a0f4c311d5e', '1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba', '687108d7c9f5e73fd7e05e59')">
       👤 User B (tanphat) → Chat với A
     </div>
   </div>
@@ -46,9 +46,9 @@
     });
 
     function startChat(currentUserId, token, otherUserId) {
-      document.getElementById("currentUserId").value = currentUserId;
-      document.getElementById("currentToken").value = token;
-      document.getElementById("chatWith").textContent = otherUserId;
+      document.getElementById("6871083dcc221a0f4c311d5e").value = currentUserId;
+      document.getElementById("1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba").value = token;
+      document.getElementById("687108d7c9f5e73fd7e05e59").textContent = otherUserId;
       document.getElementById("messages").innerHTML = "";
 
       fetch("http://localhost:3000/api/chat/create-or-get-room", {
@@ -86,7 +86,7 @@
     }
     function sendMessage() {
       const content = document.getElementById("messageInput").value.trim();
-      const senderId = document.getElementById("currentUserId").value;
+      const senderId = document.getElementById("6871083dcc221a0f4c311d5e").value;
       const roomId = document.getElementById("6871302c09e43ceb465c0805").value;
 
       if (!roomId) return alert("⚠️ Chưa có phòng");
