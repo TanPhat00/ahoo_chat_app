@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Chat Socket.IO</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; }
+    #messages div { margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+  <h2>🧪 Test Chat với Socket.IO</h2>
+
+  <label>Room ID:</label><br>
+  <input type="text" id="roomId" value="6871302c09e43ceb465c0805" style="width: 300px"><br><br>
+
+  <label>User ID:</label><br>
+  <input type="text" id="userId" value="687108d7c9f5e73fd7e05e59" style="width: 300px"><br><br>
+
+  <label>Tin nhắn:</label><br>
+  <input type="text" id="messageInput" style="width: 300px">
+  <button onclick="sendMessage()">Gửi</button>
+
+  <hr>
+  <div id="messages"><strong>Tin nhắn:</strong></div>
+
+  <script>
+    const socket = io("http://localhost:3000", {
+      transports: ["websocket"]
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ Đã kết nối socket:", socket.id);
+      const roomId = document.getElementById("roomId").value;
+      socket.emit("chat:joinRoom", roomId);
+    });
+
+    function sendMessage() {
+      const roomId = document.getElementById("roomId").value;
+      const userId = document.getElementById("userId").value;
+      const content = document.getElementById("messageInput").value;
+
+      socket.emit("chat:sendMessage", {
+        roomId,
+        message: {
+          sender: { _id: userId },
+          content: content,
+          type: "text"
+        }
+      });
+
+      document.getElementById("messageInput").value = '';
+    }
+
+    socket.on("chat:receiveMessage", ({ message }) => {
+      const container = document.getElementById("messages");
+      const div = document.createElement("div");
+      div.textContent = `${message.sender.username || 'User'}: ${message.content}`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    });
+
+    socket.on("chat:error", (err) => {
+      console.error("❌ Lỗi:", err);
+    });
+  </script>
+
+</body>
+</html>
