@@ -61,24 +61,31 @@
       })
       .then(res => res.json())
       .then(data => {
-        const roomId = data.roomId;
-        document.getElementById("currentRoomId").value = roomId;
-        socket.emit("chat:joinRoom", roomId);
-        console.log("🔗 Tham gia phòng:", roomId);
+  if (!data.success || !data.roomId) {
+    console.error("❌ Không lấy được roomId từ server", data);
+    alert("Không thể tạo hoặc lấy phòng chat!");
+    return;
+  }
 
-        // Lấy tin nhắn cũ
-        fetch(`http://localhost:3000/api/chat/${roomId}/messages`, {
-          headers: {
-            Authorization: "Bearer " + token
-          }
-        })
-        .then(res => res.json())
-        .then(msgData => {
-          msgData.messages.forEach(m => {
-            addMessageToUI(m.sender.username || m.sender._id, m.content);
-          });
-        });
-      });
+  currentRoomId = data.roomId;
+  console.log("✅ Đã lấy được roomId:", currentRoomId);
+
+  socket.emit("chat:joinRoom", currentRoomId);
+
+  // Sau khi join room thì mới fetch tin nhắn
+  fetch(`http://localhost:3000/api/chat/${currentRoomId}/messages`, {
+    headers: {
+      Authorization: token
+    }
+  })
+  .then(res => res.json())
+  .then(msgData => {
+    msgData.messages.forEach(m => {
+      addMessageToUI(m.sender.username || m.sender._id, m.content);
+    });
+  });
+});
+
     }
 
     function sendMessage() {

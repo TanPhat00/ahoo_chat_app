@@ -11,7 +11,8 @@ const allowedOrigins = process.env.CLIENT_ORIGINS?.split(',') ||
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Cho phép truy cập khi không có origin (Postman, SSR) hoặc nằm trong danh sách
+    console.log("🟡 Origin gửi đến là:", origin); // THÊM DÒNG NÀY
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
