@@ -24,6 +24,6 @@ const userSchema = new mongoose.Schema({
 });
 
 // 👇 Tự động tăng `userId`
-// userSchema.plugin(AutoIncrement, { inc_field: 'userId' });
+userSchema.plugin(AutoIncrement, { inc_field: 'userId' });
 
 module.exports = mongoose.model('User', userSchema);

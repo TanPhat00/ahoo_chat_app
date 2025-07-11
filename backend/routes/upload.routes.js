@@ -82,7 +82,7 @@ router.delete('/avatar', auth, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng' });
 
-    if (!user.avatar || user.avatar === DEFAULT_AVATAR) {
+    if (!user.avatar) {
       return res.status(400).json({ success: false, error: 'Avatar đã là mặc định' });
     }
 
@@ -91,10 +91,10 @@ router.delete('/avatar', auth, async (req, res) => {
     const publicId = segments[segments.length - 1].split('.')[0]; // Extract public ID
     await cloudinary.uploader.destroy(`avatars/${publicId}`);
 
-    user.avatar = DEFAULT_AVATAR;
+    user.avatar = null;
     await user.save();
 
-    res.json({ success: true, message: 'Đã xoá avatar, quay về mặc định', avatar: DEFAULT_AVATAR });
+    res.json({ success: true, message: 'Đã xoá avatar, quay về mặc định', avatar: null });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Không thể xoá avatar', detail: err.message });
   }
