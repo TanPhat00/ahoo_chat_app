@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middlewares/auth.middleware');
 const Message = require('../models/Message');
 
+
 // ✅ Lấy tin nhắn còn hiển thị (ẩn những tin đã xoá hoặc bị ẩn với user)
 router.get('/room/:roomId', auth, async (req, res) => {
   try {
