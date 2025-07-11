@@ -1,0 +1,29 @@
+<!-- backend/public/user-b.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User B</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>👤 User B</h2>
+  <div id="chat"></div>
+
+  <script>
+    const roomId = "6871302c09e43ceb465c0805";
+    const userId = "6871083dcc221a0f4c311d5e";
+    const socket = io("http://localhost:3000", { transports: ["websocket"] });
+
+    socket.on("connect", () => {
+      console.log("🟢 B connected:", socket.id);
+      socket.emit("chat:joinRoom", roomId);
+    });
+
+    socket.on("chat:receiveMessage", ({ message }) => {
+      const div = document.createElement("div");
+      div.textContent = `📥 ${message.sender.username || 'User'}: ${message.content}`;
+      document.getElementById("chat").appendChild(div);
+    });
+  </script>
+</body>
+</html>

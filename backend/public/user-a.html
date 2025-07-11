@@ -1,0 +1,44 @@
+<!-- backend/public/user-a.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User A</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h2>👤 User A</h2>
+  <input id="message" placeholder="Nhập tin nhắn..." />
+  <button onclick="send()">Gửi</button>
+  <div id="chat" style="margin-top:20px;"></div>
+
+  <script>
+    const roomId = "6871302c09e43ceb465c0805";
+    const userId = "687108d7c9f5e73fd7e05e59";
+    const socket = io("http://localhost:3000", { transports: ["websocket"] });
+
+    socket.on("connect", () => {
+      console.log("🟢 A connected:", socket.id);
+      socket.emit("chat:joinRoom", roomId);
+    });
+
+    function send() {
+      const msg = document.getElementById("message").value;
+      socket.emit("chat:sendMessage", {
+        roomId,
+        message: {
+          sender: { _id: userId },
+          content: msg,
+          type: "text"
+        }
+      });
+      document.getElementById("message").value = "";
+    }
+
+    socket.on("chat:receiveMessage", ({ message }) => {
+      const div = document.createElement("div");
+      div.textContent = `💬 ${message.sender.username || 'User'}: ${message.content}`;
+      document.getElementById("chat").appendChild(div);
+    });
+  </script>
+</body>
+</html>
