@@ -2,29 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Chat 1-1 (Demo Telegram)</title>
+  <title>Chat 1-1 (Messenger Style)</title>
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <style>
     body { font-family: Arial; padding: 20px; }
     .user-list, #messages { margin-bottom: 20px; }
     .user { cursor: pointer; color: blue; margin-bottom: 5px; }
-    .chat-box { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; }
+    .chat-box { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; background: #f5f5f5; }
+    .chat-box div { margin-bottom: 5px; }
   </style>
 </head>
 <body>
 
-  <h2>🔗 Chat 1-1 Test</h2>
+  <h2>🔗 Chat 1-1 (Demo kiểu Messenger)</h2>
 
-  <!-- User đang đăng nhập -->
-  <input type="hidden" id="currentUserId" value="687108d7c9f5e73fd7e05e59">
+  <!-- Lưu trạng thái -->
+  <input type="hidden" id="currentUserId" value="">
+  <input type="hidden" id="currentToken" value="">
+  <input type="hidden" id="currentRoomId" value="">
 
+  <!-- Danh sách user -->
   <div class="user-list">
-    <strong>Danh sách người dùng:</strong>
-    <div class="user" onclick="startChatWith('6871083dcc221a0f4c311d5e')">👤 User B (tanphat)</div>
-    <div class="user" onclick="startChatWith('687108d7c9f5e73fd7e05e59')">👤 User A (t.hnhi)</div>
+    <strong>🔹 Danh sách người dùng:</strong><br>
+    <div class="user" onclick="startChat('687108d7c9f5e73fd7e05e59', '8128|6ece12f3343f335071f9362a9c2186bb2b0958b855977dcb', '6871083dcc221a0f4c311d5e')">
+      👤 User A (t.hnhi) → Chat với B
+    </div>
+    <div class="user" onclick="startChat('6871083dcc221a0f4c311d5e', '2783|1aa8921c3bdd537bd1f5657a07f084247df3a727a3fca6d8', '687108d7c9f5e73fd7e05e59')">
+      👤 User B (tanphat) → Chat với A
+    </div>
   </div>
 
-  <div><strong>Đang chat với:</strong> <span id="chatWith">Chưa chọn</span></div>
+  <div><strong>💬 Đang chat với:</strong> <span id="chatWith">Chưa chọn</span></div>
   <div class="chat-box" id="messages"></div>
 
   <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." style="width: 300px">
@@ -32,53 +40,57 @@
 
   <script>
     const socket = io("http://localhost:3000", { transports: ["websocket"] });
-    let currentRoomId = null;
 
     socket.on("connect", () => {
       console.log("✅ Socket connected:", socket.id);
     });
 
-    function startChatWith(otherUserId) {
-      const currentUserId = document.getElementById("currentUserId").value;
-      const token = "Bearer 8128|6ece12f3343f335071f9362a9c2186bb2b0958b855977dcb"; // TOKEN user A
+    function startChat(currentUserId, token, otherUserId) {
+      document.getElementById("currentUserId").value = currentUserId;
+      document.getElementById("currentToken").value = token;
       document.getElementById("chatWith").textContent = otherUserId;
+      document.getElementById("messages").innerHTML = "";
 
       fetch("http://localhost:3000/api/chat/create-or-get-room", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": token
+          "Authorization": "Bearer " + token
         },
         body: JSON.stringify({ otherUserId })
       })
       .then(res => res.json())
       .then(data => {
-        currentRoomId = data.roomId;
-        console.log("👉 Tham gia room:", currentRoomId);
-        socket.emit("chat:joinRoom", currentRoomId);
-        document.getElementById("messages").innerHTML = "";
+        const roomId = data.roomId;
+        document.getElementById("currentRoomId").value = roomId;
+        socket.emit("chat:joinRoom", roomId);
+        console.log("🔗 Tham gia phòng:", roomId);
 
-        // Load tin nhắn cũ
-        fetch(`http://localhost:3000/api/chat/${currentRoomId}/messages`, {
-          headers: { Authorization: token }
+        // Lấy tin nhắn cũ
+        fetch(`http://localhost:3000/api/chat/${roomId}/messages`, {
+          headers: {
+            Authorization: "Bearer " + token
+          }
         })
-          .then(res => res.json())
-          .then(msgData => {
-            msgData.messages.forEach(m => {
-              addMessageToUI(m.sender.username || m.sender._id, m.content);
-            });
+        .then(res => res.json())
+        .then(msgData => {
+          msgData.messages.forEach(m => {
+            addMessageToUI(m.sender.username || m.sender._id, m.content);
           });
+        });
       });
     }
 
     function sendMessage() {
-      const content = document.getElementById("messageInput").value;
+      const content = document.getElementById("messageInput").value.trim();
       const senderId = document.getElementById("currentUserId").value;
+      const roomId = document.getElementById("currentRoomId").value;
 
-      if (!content || !currentRoomId) return alert("Chưa có phòng hoặc tin nhắn rỗng");
+      if (!roomId) return alert("⚠️ Chưa có phòng");
+      if (!content) return alert("⚠️ Tin nhắn trống");
 
       socket.emit("chat:sendMessage", {
-        roomId: currentRoomId,
+        roomId: roomId,
         message: {
           sender: { _id: senderId },
           content: content,
@@ -97,6 +109,8 @@
       const div = document.createElement("div");
       div.textContent = `${sender}: ${content}`;
       document.getElementById("messages").appendChild(div);
+      const box = document.getElementById("messages");
+      box.scrollTop = box.scrollHeight;
     }
   </script>
 
