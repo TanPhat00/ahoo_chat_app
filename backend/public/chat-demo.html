@@ -67,7 +67,8 @@
     return;
   }
 
-  document.getElementById("currentRoomId").value = data.roomId;
+  document.getElementById("6871302c09e43ceb465c0805").value = data.roomId; //<---
+
   socket.emit("chat:joinRoom", data.roomId);
 
   fetch(`http://localhost:3000/api/chat/${data.roomId}/messages`, {
