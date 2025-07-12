@@ -34,7 +34,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const path = require('path');
-app.use('/public', express.static(path.join(__dirname, 'backend/public')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 
 // 📁 API Routes
