@@ -17,9 +17,9 @@
   <h2>🔗 Chat 1-1 (Demo kiểu Messenger)</h2>
 
   <!-- Lưu trạng thái -->
-  <input type="hidden" id="687108d7c9f5e73fd7e05e59" value="">
-  <input type="hidden" id="1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba" value="">
-  <input type="hidden" id="6871302c09e43ceb465c0805" value="">
+  <input type="hidden" id="currentUserId" value="">
+  <input type="hidden" id="currentToken" value="">
+  <input type="hidden" id="currentRoomId" value="">
 
   <!-- Danh sách user -->
   <div class="user-list">
@@ -39,19 +39,19 @@
   <button onclick="sendMessage()">Gửi</button>
 
   <script>
-    const socket = io("http://localhost:3000", { transports: ["websocket"] });
+    const socket = io("https://chatvoitoi.onrender.com", { transports: ["websocket"] });
 
     socket.on("connect", () => {
       console.log("✅ Socket connected:", socket.id);
     });
 
     function startChat(currentUserId, token, otherUserId) {
-      document.getElementById("687108d7c9f5e73fd7e05e59").value = currentUserId;
-      document.getElementById("1979|85b6dcab4f18d39c6d1bdec4c7f0f847242334b10e0553ba").value = token;
+      document.getElementById("currentUserId").value = currentUserId;
+      document.getElementById("currentToken").value = token;
       document.getElementById("chatWith").textContent = otherUserId;
       document.getElementById("messages").innerHTML = "";
 
-      fetch("http://localhost:3000/api/chat/create-or-get-room", {
+      fetch("https://chatvoitoi.onrender.com/api/chat/create-or-get-room", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +70,7 @@
         document.getElementById("currentRoomId").value = data.roomId;
         socket.emit("chat:joinRoom", data.roomId);
 
-        fetch(`http://localhost:3000/api/chat/${data.roomId}/messages`, {
+        fetch(`https://chatvoitoi.onrender.com/api/chat/${data.roomId}/messages`, {
           headers: {
             Authorization: "Bearer " + token
           }
@@ -86,8 +86,8 @@
 
     function sendMessage() {
       const content = document.getElementById("messageInput").value.trim();
-      const senderId = document.getElementById("6871083dcc221a0f4c311d5e").value;
-      const roomId = document.getElementById("6871302c09e43ceb465c0805").value;
+      const senderId = document.getElementById("currentUserId").value;
+      const roomId = document.getElementById("currentRoomId").value;
 
       if (!roomId) return alert("⚠️ Chưa có phòng");
       if (!content) return alert("⚠️ Tin nhắn trống");

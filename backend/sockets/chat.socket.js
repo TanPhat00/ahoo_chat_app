@@ -1,9 +1,22 @@
 
 const Message = require('../models/Message');
+const User = require('../models/User');
 
 module.exports = (io, socket) => {
 
   console.log(`🟣 Socket active: ${socket.id}`);
+  
+  // ✅ Lấy userId từ socket.handshake.auth.userId (client truyền lên)
+  const userId = socket.handshake.auth?.userId;
+
+  if (userId) {
+    // ✅ Set user online
+    User.findByIdAndUpdate(userId, { status: 'online' }, { new: true })
+      .then(() => {
+        console.log(`🟢 User ${userId} is online`);
+        io.emit('user:statusChanged', { userId, status: 'online' }); // Gửi cho mọi client
+      });
+  }
 
   // 👉 Gửi tin nhắn mới
   socket.on('chat:sendMessage', async ({ roomId, message }) => {
@@ -48,5 +61,15 @@ module.exports = (io, socket) => {
   socket.on('chat:leaveRoom', (roomId) => {
     socket.leave(roomId);
     console.log(`⚪ ${socket.id} đã rời phòng ${roomId}`);
+  });
+
+  socket.on('disconnect', () => {
+    if (userId) {
+      User.findByIdAndUpdate(userId, { status: 'offline', lastSeen: new Date() })
+        .then(() => {
+          console.log(`🔴 User ${userId} is offline`);
+          io.emit('user:statusChanged', { userId, status: 'offline' });
+        });
+    }
   });
 };
