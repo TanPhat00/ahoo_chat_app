@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 const multer = require('multer');
 const upload = multer();
 
+
 // 🔧 Config
 const corsOptions = require('./config/corsOptions');
 require('./config/cloudinary'); // Cloudinary config
@@ -32,7 +33,8 @@ const server = http.createServer(app);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+const path = require('path');
+app.use('/public', express.static(path.join(__dirname, 'backend/public')));
 
 
 // 📁 API Routes
