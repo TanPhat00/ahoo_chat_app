@@ -5,7 +5,7 @@ const User = require('../models/User');
 // 📌 Gửi lời mời kết bạn từ BODY
 exports.sendFriendRequest = async (req, res) => {
   try {
-    const targetId = req.body.userId; // <-- Lấy từ body
+    const targetId = req.body.userId;
 
     if (req.user.id === targetId)
       return res.status(400).json({ error: 'Không thể kết bạn với chính mình' });
@@ -55,6 +55,7 @@ exports.sendFriendRequest = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // 📌 Danh sách lời mời đến
 exports.getIncomingRequests = async (req, res) => {
