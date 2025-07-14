@@ -2,9 +2,10 @@ const FriendRequest = require('../models/FriendRequest');
 const User = require('../models/User');
 
 // 📌 Gửi lời mời kết bạn
+// 📌 Gửi lời mời kết bạn từ BODY
 exports.sendFriendRequest = async (req, res) => {
   try {
-    const targetId = req.params.userId;
+    const targetId = req.body.userId; // <-- Lấy từ body
 
     if (req.user.id === targetId)
       return res.status(400).json({ error: 'Không thể kết bạn với chính mình' });

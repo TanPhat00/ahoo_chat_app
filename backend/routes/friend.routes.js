@@ -4,7 +4,7 @@ const auth = require('../middlewares/auth.middleware');
 const friendController = require('../controllers/friend.controller');
 
 // 📌 Các route
-router.post('/request/:userId', auth, friendController.sendFriendRequest);
+router.post('/request', auth, friendController.sendFriendRequest);
 router.get('/requests/incoming', auth, friendController.getIncomingRequests);
 router.post('/accept/:requestId', auth, friendController.acceptFriendRequest);
 router.post('/reject/:requestId', auth, friendController.rejectFriendRequest);
